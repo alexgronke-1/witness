@@ -179,13 +179,15 @@ export default function Witness() {
   if (phase === "intro") return (
     <>
       <style dangerouslySetInnerHTML={{ __html: gss }} />
-      <div style={{position:"fixed",inset:0,background:P.bg,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Sans',sans-serif"}}>
-        <div style={{maxWidth:440,width:"100%",padding:"0 32px"}}>
-          <div style={{fontFamily:"'DM Serif Display',serif",fontSize:46,color:P.white,lineHeight:1.05,marginBottom:8}}>
-            The <em style={{fontStyle:"italic",color:P.blue}}>Witness</em>
+      <div style={{position:"fixed",inset:0,background:P.bg,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Sans',sans-serif",overflow:"hidden"}}>
+        {/* Orb background */}
+        <img src="/pretzl-orb.gif" alt="" aria-hidden="true" style={{position:"absolute",width:700,height:700,top:"50%",left:"50%",transform:"translate(-50%,-50%)",mixBlendMode:"screen",opacity:0.35,pointerEvents:"none",userSelect:"none"}} />
+        <div style={{maxWidth:440,width:"100%",padding:"0 32px",position:"relative",zIndex:1}}>
+          <div style={{fontFamily:"'DM Serif Display',serif",fontSize:46,color:P.white,lineHeight:1.05,marginBottom:8,display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
+            The <img src="/pretzl-wordmark.png" alt="Pretzl" style={{height:42,display:"inline-block",verticalAlign:"middle",opacity:0.9}} /> Interview Project
           </div>
-          <div style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:P.muted,letterSpacing:"0.16em",textTransform:"uppercase",marginBottom:44}}>
-            Interview Instrument — Pretzl
+          <div style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:"#6A6A88",letterSpacing:"0.16em",textTransform:"uppercase",marginBottom:44}}>
+            Interview Instrument
           </div>
           {[
             ["Subject name","Ashok Chennuru",name,setName],
@@ -193,19 +195,19 @@ export default function Witness() {
             ["What they implemented","Salesforce Agentforce + AWS",product,setProduct],
           ].map(([lbl,ph,val,set]) => (
             <div key={lbl} style={{marginBottom:22}}>
-              <div style={{fontFamily:"'DM Mono',monospace",fontSize:9,letterSpacing:"0.16em",textTransform:"uppercase",color:P.muted,marginBottom:7}}>{lbl}</div>
-              <input style={{width:"100%",background:"transparent",border:"none",borderBottom:`1px solid ${P.border2}`,color:P.white,fontFamily:"'DM Sans',sans-serif",fontSize:16,fontWeight:300,padding:"9px 0",outline:"none"}}
+              <div style={{fontFamily:"'DM Mono',monospace",fontSize:10,letterSpacing:"0.14em",textTransform:"uppercase",color:"#7A7A99",marginBottom:7}}>{lbl}</div>
+              <input style={{width:"100%",background:"transparent",border:"none",borderBottom:`1px solid ${P.border2}`,color:P.white,fontFamily:"'DM Sans',sans-serif",fontSize:16,fontWeight:400,padding:"9px 0",outline:"none"}}
                 placeholder={ph} value={val} onChange={e=>set(e.target.value)} onKeyDown={e=>e.key==="Enter"&&start()} />
             </div>
           ))}
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:24}}>
-            <div style={{width:6,height:6,borderRadius:"50%",background:speechOk?P.yellow:P.muted}} />
-            <span style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:P.muted,letterSpacing:"0.08em"}}>
+            <div style={{width:6,height:6,borderRadius:"50%",background:speechOk?P.yellow:"#5A5A78"}} />
+            <span style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:"#7A7A99",letterSpacing:"0.08em"}}>
               {speechOk ? "Voice input ready" : "Text only — use Chrome for voice"}
             </span>
           </div>
           <button onClick={start} disabled={!name.trim()}
-            style={{width:"100%",padding:14,background:name.trim()?P.blue:P.border2,border:"none",color:name.trim()?"#fff":P.muted,fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",cursor:name.trim()?"pointer":"not-allowed"}}>
+            style={{width:"100%",padding:14,background:name.trim()?P.blue:P.border2,border:"none",color:name.trim()?"#fff":"#6A6A88",fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",cursor:name.trim()?"pointer":"not-allowed"}}>
             Begin Interview
           </button>
         </div>
@@ -216,17 +218,16 @@ export default function Witness() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: gss }} />
-      <div style={{display:"grid",gridTemplateRows:"52px 1fr",height:"100vh",fontFamily:"'DM Sans',sans-serif",background:P.bg}}>
+      {/* Orb background */}
+      <img src="/pretzl-orb.gif" alt="" aria-hidden="true" style={{position:"fixed",width:600,height:600,bottom:"-150px",right:"-150px",mixBlendMode:"screen",opacity:0.2,pointerEvents:"none",userSelect:"none",zIndex:0}} />
+      <div style={{display:"grid",gridTemplateRows:"52px 1fr",height:"100vh",fontFamily:"'DM Sans',sans-serif",background:P.bg,position:"relative",zIndex:1}}>
 
         {/* Header */}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 24px",borderBottom:`1px solid ${P.border}`,background:P.bg}}>
           <div style={{display:"flex",alignItems:"center",gap:16}}>
-            <div style={{fontFamily:"'DM Serif Display',serif",fontSize:17,color:P.white}}>
-              The <em style={{fontStyle:"italic",color:P.blue}}>Witness</em>
-            </div>
-            <div style={{display:"flex",alignItems:"center",gap:5}}>
-              {[P.blue,P.red,P.yellow].map((c,i)=><div key={i} style={{width:5,height:5,borderRadius:"50%",background:c}}/>)}
-              <span style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:P.muted,letterSpacing:"0.1em",marginLeft:3}}>Pretzl</span>
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
+              <img src="/pretzl-wordmark.png" alt="Pretzl" style={{height:14,display:"inline-block",opacity:0.9}} />
+              <span style={{fontFamily:"'DM Serif Display',serif",fontSize:15,color:P.dim,fontStyle:"italic"}}>Interview Project</span>
             </div>
           </div>
           <div style={{display:"flex",gap:8}}>
@@ -260,10 +261,10 @@ export default function Witness() {
               {err && <div style={{background:`${P.red}18`,border:`1px solid ${P.red}44`,color:P.red,fontFamily:"'DM Mono',monospace",fontSize:11,padding:"8px 14px",marginBottom:10}}>{err}</div>}
               {messages.map((m,i)=>(
                 <div key={i} style={{padding:"18px 0",borderBottom:`1px solid ${P.border}`,animation:"fadeUp 0.3s ease forwards"}}>
-                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:9,letterSpacing:"0.16em",textTransform:"uppercase",color:m.role==="interviewer"?P.blue:P.dim,marginBottom:10}}>
+                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:10,letterSpacing:"0.14em",textTransform:"uppercase",color:m.role==="interviewer"?P.blue:"#9A9ABB",marginBottom:10}}>
                     {m.role==="interviewer"?"Interviewer":name}
                   </div>
-                  <div style={{fontSize:14,lineHeight:1.8,color:m.role==="interviewer"?"#C8C6C0":P.white,fontWeight:m.role==="subject"?400:300}}>
+                  <div style={{fontSize:15,lineHeight:1.85,color:m.role==="interviewer"?"#D8D6D0":P.white,fontWeight:m.role==="subject"?400:300}}>
                     {m.content}
                   </div>
                 </div>
@@ -326,7 +327,7 @@ export default function Witness() {
                       {storyMap.scenes.map((sc,i)=>(
                         <div key={i} style={{marginBottom:12}}>
                           <div style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:P.blue,marginBottom:3}}>{sc.label}</div>
-                          <div style={{fontSize:12,lineHeight:1.7,color:P.dim,fontWeight:300}}>{sc.detail}</div>
+                          <div style={{fontSize:13,lineHeight:1.75,color:"#AAAAC0",fontWeight:300}}>{sc.detail}</div>
                         </div>
                       ))}
                     </div>
@@ -337,7 +338,7 @@ export default function Witness() {
                       {storyMap.witness_moments.map((w,i)=>(
                         <div key={i} style={{marginBottom:16}}>
                           <div style={{fontFamily:"'DM Serif Display',serif",fontStyle:"italic",fontSize:13,lineHeight:1.65,color:P.white,marginBottom:5}}>"{w.quote}"</div>
-                          <div style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:P.muted,lineHeight:1.6}}>{w.why}</div>
+                          <div style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:"#7A7A99",lineHeight:1.6}}>{w.why}</div>
                         </div>
                       ))}
                     </div>
@@ -369,8 +370,8 @@ export default function Witness() {
 function MapSection({ label, color, text }) {
   return (
     <div style={{borderLeft:`2px solid ${color}`,paddingLeft:13}}>
-      <div style={{fontFamily:"'DM Mono',monospace",fontSize:9,letterSpacing:"0.14em",textTransform:"uppercase",color,marginBottom:7}}>{label}</div>
-      <div style={{fontSize:12,lineHeight:1.7,color:"#8888AA",fontWeight:300}}>{text}</div>
+      <div style={{fontFamily:"'DM Mono',monospace",fontSize:10,letterSpacing:"0.12em",textTransform:"uppercase",color,marginBottom:7}}>{label}</div>
+      <div style={{fontSize:13,lineHeight:1.75,color:"#AAAAC0",fontWeight:300}}>{text}</div>
     </div>
   );
 }

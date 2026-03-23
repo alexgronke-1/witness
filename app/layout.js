@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "The Witness — Interview Instrument",
+  title: "The Pretzl Interview Project",
 };
 
 export default function RootLayout({ children }) {
