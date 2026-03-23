@@ -181,7 +181,7 @@ export default function Witness() {
       <style dangerouslySetInnerHTML={{ __html: gss }} />
       <div style={{position:"fixed",inset:0,background:P.bg,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Sans',sans-serif",overflow:"hidden"}}>
         {/* Orb background */}
-        <img src="/pretzl-orb.gif" alt="" aria-hidden="true" style={{position:"absolute",width:700,height:700,top:"50%",left:"50%",transform:"translate(-50%,-50%)",mixBlendMode:"screen",opacity:0.35,pointerEvents:"none",userSelect:"none"}} />
+        <img src="/pretzl-orb.svg" alt="" aria-hidden="true" style={{position:"absolute",width:700,height:700,top:"50%",left:"50%",transform:"translate(-50%,-50%)",mixBlendMode:"screen",opacity:0.35,pointerEvents:"none",userSelect:"none"}} />
         <div style={{maxWidth:440,width:"100%",padding:"0 32px",position:"relative",zIndex:1}}>
           <div style={{fontFamily:"'DM Serif Display',serif",fontSize:46,color:P.white,lineHeight:1.05,marginBottom:8,display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
             The <img src="/pretzl-wordmark.png" alt="Pretzl" style={{height:42,display:"inline-block",verticalAlign:"middle",opacity:0.9}} /> Interview Project
@@ -219,7 +219,7 @@ export default function Witness() {
     <>
       <style dangerouslySetInnerHTML={{ __html: gss }} />
       {/* Orb background */}
-      <img src="/pretzl-orb.gif" alt="" aria-hidden="true" style={{position:"fixed",width:600,height:600,bottom:"-150px",right:"-150px",mixBlendMode:"screen",opacity:0.2,pointerEvents:"none",userSelect:"none",zIndex:0}} />
+      <img src="/pretzl-orb.svg" alt="" aria-hidden="true" style={{position:"fixed",width:600,height:600,bottom:"-150px",right:"-150px",mixBlendMode:"screen",opacity:0.2,pointerEvents:"none",userSelect:"none",zIndex:0}} />
       <div style={{display:"grid",gridTemplateRows:"52px 1fr",height:"100vh",fontFamily:"'DM Sans',sans-serif",background:P.bg,position:"relative",zIndex:1}}>
 
         {/* Header */}
