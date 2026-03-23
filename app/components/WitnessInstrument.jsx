@@ -190,9 +190,9 @@ export default function Witness() {
             Interview Instrument
           </div>
           {[
-            ["Subject name","Ashok Chennuru",name,setName],
-            ["Company","Elevance Health",company,setCompany],
-            ["What they implemented","Salesforce Agentforce + AWS",product,setProduct],
+            ["Subject name","Fiona Ryan",name,setName],
+            ["Company","Pretzl",company,setCompany],
+            ["What they implemented","",product,setProduct],
           ].map(([lbl,ph,val,set]) => (
             <div key={lbl} style={{marginBottom:24}}>
               <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",color:"#AAAACC",marginBottom:8}}>{lbl}</div>
