@@ -259,16 +259,31 @@ export default function Witness() {
             {/* Messages */}
             <div style={{flex:1,overflowY:"auto",padding:"20px 24px",display:"flex",flexDirection:"column"}}>
               {err && <div style={{background:`${P.red}18`,border:`1px solid ${P.red}44`,color:P.red,fontFamily:"'DM Mono',monospace",fontSize:11,padding:"8px 14px",marginBottom:10}}>{err}</div>}
-              {messages.map((m,i)=>(
-                <div key={i} style={{padding:"18px 0",borderBottom:`1px solid ${P.border}`,animation:"fadeUp 0.3s ease forwards"}}>
-                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",color:m.role==="interviewer"?P.blue:"#AAAACC",marginBottom:10}}>
-                    {m.role==="interviewer"?"Interviewer":name}
+              {messages.map((m,i)=>{
+                const subjectsBefore = messages.slice(0,i).filter(x=>x.role==="subject").length;
+                const stageNow = getStage(subjectsBefore);
+                const stagePrev = i===0 ? -1 : getStage(messages.slice(0,i-1).filter(x=>x.role==="subject").length);
+                const showDivider = i>0 && stageNow !== stagePrev;
+                return (
+                  <div key={i}>
+                    {showDivider && (
+                      <div style={{display:"flex",alignItems:"center",gap:12,padding:"24px 0 8px",animation:"fadeUp 0.4s ease forwards"}}>
+                        <div style={{flex:1,height:1,background:P.border2}}/>
+                        <div style={{fontFamily:"'DM Mono',monospace",fontSize:10,letterSpacing:"0.18em",textTransform:"uppercase",color:P.blue,whiteSpace:"nowrap"}}>{STAGES[stageNow]}</div>
+                        <div style={{flex:1,height:1,background:P.border2}}/>
+                      </div>
+                    )}
+                    <div style={{padding:"18px 0",borderBottom:`1px solid ${P.border}`,animation:"fadeUp 0.3s ease forwards"}}>
+                      <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",color:m.role==="interviewer"?P.blue:"#AAAACC",marginBottom:10}}>
+                        {m.role==="interviewer"?"Interviewer":name}
+                      </div>
+                      <div style={{fontSize:16,lineHeight:1.9,color:m.role==="interviewer"?"#E8E6E0":P.white,fontWeight:m.role==="subject"?400:300}}>
+                        {m.content}
+                      </div>
+                    </div>
                   </div>
-                  <div style={{fontSize:16,lineHeight:1.9,color:m.role==="interviewer"?"#E8E6E0":P.white,fontWeight:m.role==="subject"?400:300}}>
-                    {m.content}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
               {loading && (
                 <div style={{display:"flex",gap:5,padding:"18px 0",alignItems:"center"}}>
                   {[0,1,2].map(i=><div key={i} style={{width:4,height:4,borderRadius:"50%",background:P.blue,animation:`pulse 1.2s ease-in-out ${i*0.2}s infinite`}}/>)}
