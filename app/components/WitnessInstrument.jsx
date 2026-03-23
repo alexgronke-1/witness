@@ -82,8 +82,8 @@ html,body,#root{height:100%;background:${P.bg};}
 
 export default function Witness() {
   const [phase, setPhase]       = useState("intro");
-  const [name, setName]         = useState("");
-  const [company, setCompany]   = useState("");
+  const [name, setName]         = useState("Fiona Ryan");
+  const [company, setCompany]   = useState("Pretzl");
   const [product, setProduct]   = useState("");
   const [messages, setMessages] = useState([]);
   const [input, setInput]       = useState("");
