@@ -335,7 +335,7 @@ export default function Witness() {
             Market Narrative Builder
           </div>
           <div style={{fontSize:14,color:"#7A7A99",fontWeight:300,lineHeight:1.7,marginBottom:20}}>
-            {duration} minutes. {DURATION_CONFIG[duration].activeStages.length} stages. Your story, captured precisely.
+            {duration === 5 ? "Quick capture. The before and the break." : duration === 10 ? "The core arc. Problem through resolution." : "The full story. Every layer, every turn."}
           </div>
           <div style={{display:"flex",gap:8,marginBottom:36}}>
             {[5,10,15].map(d=>(
