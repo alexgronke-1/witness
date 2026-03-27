@@ -535,7 +535,7 @@ export default function Witness() {
                       <div style={{width:28,height:28,borderRadius:"50%",border:`1px solid #4A4A66`,display:"flex",alignItems:"center",justifyContent:"center"}}>
                         <div style={{width:6,height:6,borderRadius:"50%",background:"#4A4A66"}}/>
                       </div>
-                      <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#CCCCDD",letterSpacing:"0.1em",textTransform:"uppercase",lineHeight:1.8}}>Map builds<br/>as scenes<br/>surface</div>
+                      <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#CCCCDD",letterSpacing:"0.1em",textTransform:"uppercase",lineHeight:1.8}}>Story builds<br/>as scenes<br/>surface</div>
                     </div>
                   ) : (
                     <>
