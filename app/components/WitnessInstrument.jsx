@@ -469,14 +469,22 @@ export default function Witness() {
 
             {/* Input */}
             <div style={{padding:"12px 24px 16px",borderTop:`1px solid ${P.border}`,flexShrink:0,background:P.surface}}>
-              {/* Final question chip */}
-              {stagePos >= cfg.activeStages.length - 1 && messages.length > 4 && (
-                <div style={{marginBottom:10}}>
-                  <button onClick={()=>send(FINAL_Q)} disabled={loading}
-                    style={{fontFamily:"'Inter',sans-serif",fontSize:13,fontWeight:300,color:"#9A9ABB",background:"transparent",border:`1px solid ${P.border2}`,padding:"7px 14px",cursor:"pointer",fontStyle:"italic",transition:"border-color 0.2s, color 0.2s"}}
-                    onMouseEnter={e=>{e.target.style.borderColor=P.blue;e.target.style.color=P.white;}}
-                    onMouseLeave={e=>{e.target.style.borderColor=P.border2;e.target.style.color="#9A9ABB";}}>
-                    "{FINAL_Q}"
+              {/* Chips row */}
+              {messages.length > 0 && (
+                <div style={{display:"flex",gap:8,marginBottom:10,flexWrap:"wrap"}}>
+                  {stagePos >= cfg.activeStages.length - 1 && messages.length > 4 && (
+                    <button onClick={()=>send(FINAL_Q)} disabled={loading}
+                      style={{fontFamily:"'Inter',sans-serif",fontSize:13,fontWeight:300,color:"#9A9ABB",background:"transparent",border:`1px solid ${P.border2}`,padding:"7px 14px",cursor:"pointer",fontStyle:"italic",transition:"border-color 0.2s, color 0.2s"}}
+                      onMouseEnter={e=>{e.target.style.borderColor=P.blue;e.target.style.color=P.white;}}
+                      onMouseLeave={e=>{e.target.style.borderColor=P.border2;e.target.style.color="#9A9ABB";}}>
+                      "{FINAL_Q}"
+                    </button>
+                  )}
+                  <button onClick={()=>send("Let's move on.")} disabled={loading}
+                    style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.1em",textTransform:"uppercase",color:"#5A5A78",background:"transparent",border:`1px solid ${P.border}`,padding:"7px 12px",cursor:"pointer",transition:"border-color 0.2s, color 0.2s"}}
+                    onMouseEnter={e=>{e.target.style.borderColor=P.border2;e.target.style.color="#9A9ABB";}}
+                    onMouseLeave={e=>{e.target.style.borderColor=P.border;e.target.style.color="#5A5A78";}}>
+                    Skip →
                   </button>
                 </div>
               )}
