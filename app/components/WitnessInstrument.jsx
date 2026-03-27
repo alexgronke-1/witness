@@ -21,9 +21,34 @@ const STAGE_DESC = [
   "What this means beyond the work itself.",
 ];
 
-const TIME_REMAINING = [15, 12, 10, 7, 5, 2];
+const DURATION_CONFIG = {
+  5:  {
+    activeStages:  [0, 1],
+    thresholds:    [0, 3],
+    timeRemaining: [5, 2],
+    pacingNote: "TIME CONSTRAINT: This is a 5-minute interview. Cover ONLY Orient (1-2 questions) and The Before (2-3 questions). Move briskly. Do not proceed past The Before.",
+  },
+  10: {
+    activeStages:  [0, 1, 2, 3, 4],
+    thresholds:    [0, 3, 6, 9, 12],
+    timeRemaining: [10, 8, 6, 4, 2],
+    pacingNote: "TIME CONSTRAINT: This is a 10-minute interview. Cover Orient, The Before, Decision, What Broke, and Moment It Worked. Skip The Personal. Max 2-3 questions per stage.",
+  },
+  15: {
+    activeStages:  [0, 1, 2, 3, 4, 5],
+    thresholds:    [0, 4, 8, 12, 16, 20],
+    timeRemaining: [15, 12, 10, 7, 5, 2],
+    pacingNote: "TIME CONSTRAINT: This is a 15-minute interview. Cover all 6 stages at a natural pace.",
+  },
+};
 
-const getStage = n => [0,4,8,12,16,20].findIndex((v,i,a) => n < (a[i+1] ?? 999));
+function getStagePos(n, cfg) {
+  const t = cfg.thresholds;
+  return Math.min(t.findIndex((v,i) => n < (t[i+1] ?? 999)), cfg.activeStages.length - 1);
+}
+function getStageIdx(n, cfg) {
+  return cfg.activeStages[getStagePos(n, cfg)];
+}
 
 const FINAL_Q = "What didn't you ask me that you should have?";
 
@@ -141,6 +166,7 @@ export default function Witness() {
   const [speechOk, setSpeech]   = useState(false);
   const [err, setErr]           = useState(null);
   const [stageCard, setStageCard] = useState(null);
+  const [duration, setDuration]   = useState(15);
   const [studioTab, setStudioTab] = useState("client");
   const [studioOutputs, setStudioOutputs] = useState({});
   const [studioLoading, setStudioLoading] = useState({});
@@ -172,16 +198,18 @@ export default function Witness() {
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:"smooth" }); }, [messages, loading]);
 
   const sc = messages.filter(m=>m.role==="subject").length;
-  const stage = getStage(sc);
+  const cfg = DURATION_CONFIG[duration];
+  const stagePos = getStagePos(sc, cfg);
+  const stageIdx = getStageIdx(sc, cfg);
 
   useEffect(() => {
-    if (stage !== prevStage.current) {
-      prevStage.current = stage;
-      setStageCard(stage);
+    if (stageIdx !== prevStage.current) {
+      prevStage.current = stageIdx;
+      setStageCard(stageIdx);
       clearTimeout(cardTimer.current);
       cardTimer.current = setTimeout(() => setStageCard(null), 5000);
     }
-  }, [stage]);
+  }, [stageIdx]);
 
   function reset() {
     setPhase("intro");
@@ -203,7 +231,8 @@ export default function Witness() {
     prevStage.current = -1;
     try {
       const ctx = `Subject: ${name}${company ? ` at ${company}` : ""}${product ? `. They implemented: ${product}` : ""}.`;
-      const reply = await callClaude([{ role:"user", content:ctx }], SYSTEM);
+      const system = SYSTEM + "\n\n" + DURATION_CONFIG[duration].pacingNote;
+      const reply = await callClaude([{ role:"user", content:ctx }], system);
       setMessages([{ role:"interviewer", content:reply }]);
     } catch(e) { setErr(e.message); }
     setLoading(false);
@@ -217,7 +246,8 @@ export default function Witness() {
     const next = [...messages, { role:"subject", content:text }];
     setMessages(next); setLoading(true); setErr(null);
     try {
-      const reply = await callClaude(buildMsgs(next, name, company, product), SYSTEM);
+      const system = SYSTEM + "\n\n" + DURATION_CONFIG[duration].pacingNote;
+      const reply = await callClaude(buildMsgs(next, name, company, product), system);
       const final = [...next, { role:"interviewer", content:reply }];
       setMessages(final);
       const sc = final.filter(m => m.role === "subject").length;
@@ -304,8 +334,16 @@ export default function Witness() {
           <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#8A8AAA",letterSpacing:"0.16em",textTransform:"uppercase",marginBottom:8}}>
             Market Narrative Builder
           </div>
-          <div style={{fontSize:14,color:"#7A7A99",fontWeight:300,lineHeight:1.7,marginBottom:36}}>
-            15 minutes. 6 stages. Your story, captured precisely.
+          <div style={{fontSize:14,color:"#7A7A99",fontWeight:300,lineHeight:1.7,marginBottom:20}}>
+            {duration} minutes. {DURATION_CONFIG[duration].activeStages.length} stages. Your story, captured precisely.
+          </div>
+          <div style={{display:"flex",gap:8,marginBottom:36}}>
+            {[5,10,15].map(d=>(
+              <button key={d} onClick={()=>setDuration(d)}
+                style={{flex:1,padding:"9px 0",fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.12em",textTransform:"uppercase",border:`1px solid ${duration===d?P.blue:P.border2}`,background:duration===d?`${P.blue}18`:"transparent",color:duration===d?P.blue:"#7A7A99",cursor:"pointer",transition:"all 0.2s"}}>
+                {d} min
+              </button>
+            ))}
           </div>
           {[
             ["Subject name","Fiona Ryan",name,setName],
@@ -373,13 +411,13 @@ export default function Witness() {
             {/* Stage bar */}
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 24px",borderBottom:`1px solid ${P.border}`,flexShrink:0}}>
               <div style={{display:"flex",alignItems:"center",gap:12}}>
-                <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:P.blue,letterSpacing:"0.14em",textTransform:"uppercase"}}>{STAGES[stage]}</div>
+                <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:P.blue,letterSpacing:"0.14em",textTransform:"uppercase"}}>{STAGES[stageIdx]}</div>
                 <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:"#5A5A78"}}>·</div>
-                <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:"#7A7A99"}}>~{TIME_REMAINING[stage]} min remaining</div>
+                <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:"#7A7A99"}}>~{cfg.timeRemaining[stagePos]} min remaining</div>
               </div>
               <div style={{display:"flex",gap:6}}>
-                {STAGES.map((_,i)=>(
-                  <div key={i} style={{width:28,height:4,borderRadius:2,background:i<stage?"#3A3A5A":i===stage?P.blue:P.border2,transition:"background 0.4s"}}/>
+                {cfg.activeStages.map((sIdx,i)=>(
+                  <div key={sIdx} style={{width:28,height:4,borderRadius:2,background:i<stagePos?"#3A3A5A":i===stagePos?P.blue:P.border2,transition:"background 0.4s"}}/>
                 ))}
               </div>
             </div>
@@ -402,8 +440,8 @@ export default function Witness() {
               {err && <div style={{background:`${P.red}18`,border:`1px solid ${P.red}44`,color:P.red,fontFamily:"'DM Mono',monospace",fontSize:11,padding:"8px 14px",marginBottom:10}}>{err}</div>}
               {messages.map((m,i)=>{
                 const subjectsBefore = messages.slice(0,i).filter(x=>x.role==="subject").length;
-                const stageNow = getStage(subjectsBefore);
-                const stagePrev = i===0 ? -1 : getStage(messages.slice(0,i-1).filter(x=>x.role==="subject").length);
+                const stageNow = getStageIdx(subjectsBefore, cfg);
+                const stagePrev = i===0 ? -1 : getStageIdx(messages.slice(0,i-1).filter(x=>x.role==="subject").length, cfg);
                 const showDivider = i>0 && stageNow !== stagePrev;
                 return (
                   <div key={i}>
@@ -436,7 +474,7 @@ export default function Witness() {
             {/* Input */}
             <div style={{padding:"12px 24px 16px",borderTop:`1px solid ${P.border}`,flexShrink:0,background:P.surface}}>
               {/* Final question chip */}
-              {stage >= 4 && messages.length > 4 && (
+              {stagePos >= cfg.activeStages.length - 1 && messages.length > 4 && (
                 <div style={{marginBottom:10}}>
                   <button onClick={()=>send(FINAL_Q)} disabled={loading}
                     style={{fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:300,color:"#9A9ABB",background:"transparent",border:`1px solid ${P.border2}`,padding:"7px 14px",cursor:"pointer",fontStyle:"italic",transition:"border-color 0.2s, color 0.2s"}}
