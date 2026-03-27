@@ -561,7 +561,7 @@ export default function Witness() {
               <div style={{flex:1,overflowY:"auto",padding:"18px",display:"flex",flexDirection:"column",gap:16}}>
                 {messages.length < 2 && (
                   <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",gap:14,opacity:0.3,textAlign:"center"}}>
-                    <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#8888AA",letterSpacing:"0.1em",textTransform:"uppercase",lineHeight:1.8}}>Start the interview<br/>to generate outputs</div>
+                    <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#AAAACC",letterSpacing:"0.1em",textTransform:"uppercase",lineHeight:1.8}}>Start the interview<br/>to generate outputs</div>
                   </div>
                 )}
                 {messages.length >= 2 && STUDIO_OUTPUTS.map(({ key, label, description, system }) => (
