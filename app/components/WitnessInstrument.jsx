@@ -535,11 +535,11 @@ export default function Witness() {
               <>
                 <div style={{flex:1,overflowY:"auto",padding:"18px",display:"flex",flexDirection:"column",gap:18}}>
                   {!storyMap ? (
-                    <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",gap:14,opacity:0.25,textAlign:"center"}}>
-                      <div style={{width:28,height:28,borderRadius:"50%",border:`1px solid ${P.muted}`,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                        <div style={{width:6,height:6,borderRadius:"50%",background:P.muted}}/>
+                    <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",gap:14,textAlign:"center"}}>
+                      <div style={{width:28,height:28,borderRadius:"50%",border:`1px solid #4A4A66`,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                        <div style={{width:6,height:6,borderRadius:"50%",background:"#4A4A66"}}/>
                       </div>
-                      <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#8888AA",letterSpacing:"0.1em",textTransform:"uppercase",lineHeight:1.8}}>Map builds<br/>as scenes<br/>surface</div>
+                      <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#CCCCDD",letterSpacing:"0.1em",textTransform:"uppercase",lineHeight:1.8}}>Map builds<br/>as scenes<br/>surface</div>
                     </div>
                   ) : (
                     <>
