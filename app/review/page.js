@@ -125,7 +125,7 @@ function ReviewContent() {
               <div>
                 <div
                   style={{
-                    fontFamily: "'DM Serif Display',serif",
+                    fontFamily: "'Inter',sans-serif",
                     fontStyle: "italic",
                     fontSize: 32,
                     color: P.white,
@@ -208,7 +208,7 @@ function ReviewContent() {
                     <div key={i} style={{ marginBottom: 24 }}>
                       <div
                         style={{
-                          fontFamily: "'DM Serif Display',serif",
+                          fontFamily: "'Inter',sans-serif",
                           fontStyle: "italic",
                           fontSize: 17,
                           lineHeight: 1.7,
@@ -264,7 +264,7 @@ function ReviewContent() {
                   </span>
                   <div
                     style={{
-                      fontFamily: "'DM Serif Display',serif",
+                      fontFamily: "'Inter',sans-serif",
                       fontStyle: "italic",
                       fontSize: 17,
                       color: "#90C8EE",

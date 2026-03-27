@@ -141,7 +141,7 @@ function buildTranscript(msgs) {
 }
 
 const gss = `
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&family=DM+Serif+Display:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Mono:wght@300;400&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body,#root{height:100%;background:${P.bg};}
 ::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:${P.border2};}
@@ -325,13 +325,13 @@ export default function Witness() {
   if (phase === "intro") return (
     <>
       <style dangerouslySetInnerHTML={{ __html: gss }} />
-      <div style={{position:"fixed",inset:0,background:P.bg,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Sans',sans-serif",overflow:"hidden"}}>
+      <div style={{position:"fixed",inset:0,background:P.bg,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Inter',sans-serif",overflow:"hidden"}}>
         <img src="/pretzl-orb.svg" alt="" aria-hidden="true" style={{position:"absolute",width:700,height:700,top:"50%",left:"50%",transform:"translate(-50%,-50%)",mixBlendMode:"screen",opacity:0.35,pointerEvents:"none",userSelect:"none"}} />
         <div style={{maxWidth:440,width:"100%",padding:"0 32px",position:"relative",zIndex:1}}>
-          <div style={{fontFamily:"'DM Serif Display',serif",fontSize:46,color:P.white,lineHeight:1.05,marginBottom:8,display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
+          <div style={{fontFamily:"'Inter',sans-serif",fontSize:46,color:P.white,lineHeight:1.05,marginBottom:8,display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
             The <img src="/pretzl-wordmark.png" alt="Pretzl" style={{height:42,display:"inline-block",verticalAlign:"middle",opacity:0.9}} /> Interview Project
           </div>
-          <div style={{fontFamily:"'DM Serif Display',serif",fontSize:22,color:P.white,marginBottom:8,textAlign:"center"}}>
+          <div style={{fontFamily:"'Inter',sans-serif",fontSize:22,color:P.white,marginBottom:8,textAlign:"center"}}>
             Market Narrative Builder
           </div>
           <div style={{fontSize:14,color:"#7A7A99",fontWeight:300,lineHeight:1.7,marginBottom:20}}>
@@ -352,7 +352,7 @@ export default function Witness() {
           ].map(([lbl,ph,val,set]) => (
             <div key={lbl} style={{marginBottom:24}}>
               <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",color:"#AAAACC",marginBottom:8}}>{lbl}</div>
-              <input style={{width:"100%",background:"transparent",border:"none",borderBottom:`1px solid ${P.border2}`,color:P.white,fontFamily:"'DM Sans',sans-serif",fontSize:17,fontWeight:400,padding:"9px 0",outline:"none"}}
+              <input style={{width:"100%",background:"transparent",border:"none",borderBottom:`1px solid ${P.border2}`,color:P.white,fontFamily:"'Inter',sans-serif",fontSize:17,fontWeight:400,padding:"9px 0",outline:"none"}}
                 placeholder={ph} value={val} onChange={e=>set(e.target.value)} onKeyDown={e=>e.key==="Enter"&&start()} />
             </div>
           ))}
@@ -375,7 +375,7 @@ export default function Witness() {
     <>
       <style dangerouslySetInnerHTML={{ __html: gss }} />
       <img src="/pretzl-orb.svg" alt="" aria-hidden="true" style={{position:"fixed",width:600,height:600,bottom:"-150px",right:"-150px",mixBlendMode:"screen",opacity:0.2,pointerEvents:"none",userSelect:"none",zIndex:0}} />
-      <div style={{display:"grid",gridTemplateRows:"58px 1fr",height:"100vh",fontFamily:"'DM Sans',sans-serif",background:P.bg,position:"relative",zIndex:1}}>
+      <div style={{display:"grid",gridTemplateRows:"58px 1fr",height:"100vh",fontFamily:"'Inter',sans-serif",background:P.bg,position:"relative",zIndex:1}}>
 
         {/* Header */}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 24px",borderBottom:`1px solid ${P.border}`,background:P.bg}}>
@@ -387,7 +387,7 @@ export default function Witness() {
             <div style={{width:1,height:18,background:P.border2}}/>
             <div style={{display:"flex",alignItems:"center",gap:10}}>
               <img src="/pretzl-wordmark.png" alt="Pretzl" style={{height:16,display:"inline-block",opacity:0.9}} />
-              <span style={{fontFamily:"'DM Serif Display',serif",fontSize:16,color:"#AAAACC",fontStyle:"italic"}}>Interview Project</span>
+              <span style={{fontFamily:"'Inter',sans-serif",fontSize:16,color:"#AAAACC",fontStyle:"italic"}}>Interview Project</span>
             </div>
           </div>
           <div style={{display:"flex",gap:8}}>
@@ -473,7 +473,7 @@ export default function Witness() {
               {stagePos >= cfg.activeStages.length - 1 && messages.length > 4 && (
                 <div style={{marginBottom:10}}>
                   <button onClick={()=>send(FINAL_Q)} disabled={loading}
-                    style={{fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:300,color:"#9A9ABB",background:"transparent",border:`1px solid ${P.border2}`,padding:"7px 14px",cursor:"pointer",fontStyle:"italic",transition:"border-color 0.2s, color 0.2s"}}
+                    style={{fontFamily:"'Inter',sans-serif",fontSize:13,fontWeight:300,color:"#9A9ABB",background:"transparent",border:`1px solid ${P.border2}`,padding:"7px 14px",cursor:"pointer",fontStyle:"italic",transition:"border-color 0.2s, color 0.2s"}}
                     onMouseEnter={e=>{e.target.style.borderColor=P.blue;e.target.style.color=P.white;}}
                     onMouseLeave={e=>{e.target.style.borderColor=P.border2;e.target.style.color="#9A9ABB";}}>
                     "{FINAL_Q}"
@@ -482,7 +482,7 @@ export default function Witness() {
               )}
               <div style={{display:"flex",gap:10,alignItems:"flex-end"}}>
                 <textarea
-                  style={{flex:1,background:P.bg,border:`1px solid ${P.border2}`,color:P.white,fontFamily:"'DM Sans',sans-serif",fontSize:15,fontWeight:300,padding:"10px 14px",resize:"none",outline:"none",lineHeight:1.7,minHeight:44,maxHeight:120}}
+                  style={{flex:1,background:P.bg,border:`1px solid ${P.border2}`,color:P.white,fontFamily:"'Inter',sans-serif",fontSize:15,fontWeight:300,padding:"10px 14px",resize:"none",outline:"none",lineHeight:1.7,minHeight:44,maxHeight:120}}
                   placeholder={listening?"Listening…":"Type your answer, or tap the mic…"}
                   value={input} onChange={e=>setInput(e.target.value)} onKeyDown={onKey} disabled={loading} rows={1}
                 />
@@ -558,7 +558,7 @@ export default function Witness() {
                           <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",color:P.blue,marginBottom:10}}>Witness Moments</div>
                           {storyMap.witness_moments.map((w,i)=>(
                             <div key={i} style={{marginBottom:18}}>
-                              <div style={{fontFamily:"'DM Serif Display',serif",fontStyle:"italic",fontSize:15,lineHeight:1.7,color:P.white,marginBottom:6}}>"{w.quote}"</div>
+                              <div style={{fontFamily:"'Inter',sans-serif",fontStyle:"italic",fontSize:15,lineHeight:1.7,color:P.white,marginBottom:6}}>"{w.quote}"</div>
                               <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:"#9A9ABB",lineHeight:1.65}}>{w.why}</div>
                             </div>
                           ))}
@@ -568,7 +568,7 @@ export default function Witness() {
                       {storyMap.best_question_remaining && (
                         <div style={{background:`${P.blue}10`,border:`1px solid ${P.blue}22`,padding:14}}>
                           <span style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",color:P.blue,display:"block",marginBottom:8}}>Next Best Question</span>
-                          <div style={{fontFamily:"'DM Serif Display',serif",fontStyle:"italic",fontSize:15,color:"#90C8EE",lineHeight:1.7}}>{storyMap.best_question_remaining}</div>
+                          <div style={{fontFamily:"'Inter',sans-serif",fontStyle:"italic",fontSize:15,color:"#90C8EE",lineHeight:1.7}}>{storyMap.best_question_remaining}</div>
                         </div>
                       )}
                     </>
