@@ -187,7 +187,7 @@ export default function Witness() {
             The <img src="/pretzl-wordmark.png" alt="Pretzl" style={{height:42,display:"inline-block",verticalAlign:"middle",opacity:0.9}} /> Interview Project
           </div>
           <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#8A8AAA",letterSpacing:"0.16em",textTransform:"uppercase",marginBottom:44}}>
-            Interview Instrument
+            Market Narrative Builder
           </div>
           {[
             ["Subject name","Fiona Ryan",name,setName],
