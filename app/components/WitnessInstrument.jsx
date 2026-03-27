@@ -395,10 +395,6 @@ export default function Witness() {
               style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.1em",textTransform:"uppercase",padding:"7px 16px",border:`1px solid ${P.blue}`,background:"transparent",color:P.blue,cursor:"pointer"}}>
               {extracting?"Reading…":"Extract Map"}
             </button>
-            <button onClick={exportFile} disabled={messages.length<2}
-              style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.1em",textTransform:"uppercase",padding:"7px 16px",border:`1px solid ${P.border2}`,background:"transparent",color:"#AAAACC",cursor:"pointer"}}>
-              Export
-            </button>
           </div>
         </div>
 
