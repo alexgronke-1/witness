@@ -402,7 +402,7 @@ export default function Witness() {
         <div style={{display:"grid",gridTemplateColumns:"1fr 360px",overflow:"hidden"}}>
 
           {/* Interview */}
-          <div style={{display:"flex",flexDirection:"column",borderRight:`1px solid ${P.border}`}}>
+          <div style={{display:"flex",flexDirection:"column",borderRight:`1px solid ${P.border}`,overflow:"hidden",minHeight:0}}>
 
             {/* Stage bar */}
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 24px",borderBottom:`1px solid ${P.border}`,flexShrink:0}}>
@@ -503,7 +503,7 @@ export default function Witness() {
           </div>
 
           {/* Right Panel */}
-          <div style={{display:"flex",flexDirection:"column",background:P.surface}}>
+          <div style={{display:"flex",flexDirection:"column",background:P.surface,overflow:"hidden",minHeight:0}}>
 
             {/* Tab switcher */}
             <div style={{padding:"10px 18px",borderBottom:`1px solid ${P.border}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
