@@ -10,6 +10,23 @@ const P = {
   white:"#F2F0EA", dim:"#8888AA", muted:"#4A4A66", text:"#E8E6E0",
 };
 
+const STAGES = ["Orient","The Before","Decision","What Broke","Moment It Worked","The Personal"];
+
+const STAGE_DESC = [
+  "A few quick questions to set context — who you are and what you built.",
+  "Let's paint a picture of what the situation looked like before the change.",
+  "How the decision actually got made — the honest version.",
+  "Every implementation has a rough patch. Let's find yours.",
+  "The specific moment you knew something had shifted.",
+  "What this means beyond the work itself.",
+];
+
+const TIME_REMAINING = [15, 12, 10, 7, 5, 2];
+
+const getStage = n => [0,4,8,12,16,20].findIndex((v,i,a) => n < (a[i+1] ?? 999));
+
+const FINAL_Q = "What didn't you ask me that you should have?";
+
 const SYSTEM = `You are a documentary interviewer doing pre-production research. Surface witness moments — specific, irreplaceable knowledge only this person has — not spokesperson talking points.
 
 THE CORE DISTINCTION: A spokesperson tells you what they believe. A witness tells you what they saw. Find the witness.
@@ -67,15 +84,13 @@ function buildMsgs(msgs, name, company, product) {
   return out;
 }
 
-const STAGES = ["Orient","The Before","Decision","What Broke","Moment It Worked","The Personal"];
-const getStage = n => [0,4,8,12,16,20].findIndex((v,i,a) => n < (a[i+1] ?? 999));
-
 const gss = `
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&family=DM+Serif+Display:ital@0;1&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body,#root{height:100%;background:${P.bg};}
 ::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:${P.border2};}
 @keyframes fadeUp{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-5px);}to{opacity:1;transform:translateY(0);}}
 @keyframes pulse{0%,100%{opacity:0.25;}50%{opacity:1;}}
 @keyframes ripple{0%{transform:scale(1);opacity:0.7;}100%{transform:scale(2.2);opacity:0;}}
 `;
@@ -94,8 +109,11 @@ export default function Witness() {
   const [extracting, setExt]    = useState(false);
   const [speechOk, setSpeech]   = useState(false);
   const [err, setErr]           = useState(null);
-  const bottomRef = useRef(null);
-  const recRef    = useRef(null);
+  const [stageCard, setStageCard] = useState(null);
+  const bottomRef  = useRef(null);
+  const recRef     = useRef(null);
+  const prevStage  = useRef(-1);
+  const cardTimer  = useRef(null);
 
   useEffect(() => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -117,9 +135,32 @@ export default function Witness() {
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:"smooth" }); }, [messages, loading]);
 
+  const sc = messages.filter(m=>m.role==="subject").length;
+  const stage = getStage(sc);
+
+  useEffect(() => {
+    if (stage !== prevStage.current) {
+      prevStage.current = stage;
+      setStageCard(stage);
+      clearTimeout(cardTimer.current);
+      cardTimer.current = setTimeout(() => setStageCard(null), 5000);
+    }
+  }, [stage]);
+
+  function reset() {
+    setPhase("intro");
+    setMessages([]);
+    setInput("");
+    setMap(null);
+    setErr(null);
+    setStageCard(null);
+    prevStage.current = -1;
+  }
+
   async function start() {
     if (!name.trim()) return;
     setPhase("interview"); setLoading(true); setErr(null);
+    prevStage.current = -1;
     try {
       const ctx = `Subject: ${name}${company ? ` at ${company}` : ""}${product ? `. They implemented: ${product}` : ""}.`;
       const reply = await callClaude([{ role:"user", content:ctx }], SYSTEM);
@@ -128,8 +169,8 @@ export default function Witness() {
     setLoading(false);
   }
 
-  async function send() {
-    const text = (input + interim).trim();
+  async function send(overrideText) {
+    const text = (overrideText || input + interim).trim();
     if (!text || loading) return;
     if (listening) { recRef.current?.stop(); setListen(false); }
     setInput(""); setInterim("");
@@ -173,21 +214,20 @@ export default function Witness() {
     a.click();
   }
 
-  const sc = messages.filter(m=>m.role==="subject").length;
-  const stage = getStage(sc);
-
   if (phase === "intro") return (
     <>
       <style dangerouslySetInnerHTML={{ __html: gss }} />
       <div style={{position:"fixed",inset:0,background:P.bg,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Sans',sans-serif",overflow:"hidden"}}>
-        {/* Orb background */}
         <img src="/pretzl-orb.svg" alt="" aria-hidden="true" style={{position:"absolute",width:700,height:700,top:"50%",left:"50%",transform:"translate(-50%,-50%)",mixBlendMode:"screen",opacity:0.35,pointerEvents:"none",userSelect:"none"}} />
         <div style={{maxWidth:440,width:"100%",padding:"0 32px",position:"relative",zIndex:1}}>
           <div style={{fontFamily:"'DM Serif Display',serif",fontSize:46,color:P.white,lineHeight:1.05,marginBottom:8,display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
             The <img src="/pretzl-wordmark.png" alt="Pretzl" style={{height:42,display:"inline-block",verticalAlign:"middle",opacity:0.9}} /> Interview Project
           </div>
-          <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#8A8AAA",letterSpacing:"0.16em",textTransform:"uppercase",marginBottom:44}}>
+          <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#8A8AAA",letterSpacing:"0.16em",textTransform:"uppercase",marginBottom:8}}>
             Market Narrative Builder
+          </div>
+          <div style={{fontSize:14,color:"#7A7A99",fontWeight:300,lineHeight:1.7,marginBottom:36}}>
+            15 minutes. 6 stages. Your story, captured precisely.
           </div>
           {[
             ["Subject name","Fiona Ryan",name,setName],
@@ -218,13 +258,17 @@ export default function Witness() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: gss }} />
-      {/* Orb background */}
       <img src="/pretzl-orb.svg" alt="" aria-hidden="true" style={{position:"fixed",width:600,height:600,bottom:"-150px",right:"-150px",mixBlendMode:"screen",opacity:0.2,pointerEvents:"none",userSelect:"none",zIndex:0}} />
       <div style={{display:"grid",gridTemplateRows:"58px 1fr",height:"100vh",fontFamily:"'DM Sans',sans-serif",background:P.bg,position:"relative",zIndex:1}}>
 
         {/* Header */}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 24px",borderBottom:`1px solid ${P.border}`,background:P.bg}}>
-          <div style={{display:"flex",alignItems:"center",gap:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:20}}>
+            <button onClick={reset}
+              style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.1em",color:"#7A7A99",background:"transparent",border:"none",cursor:"pointer",padding:0,display:"flex",alignItems:"center",gap:6}}>
+              ← New Interview
+            </button>
+            <div style={{width:1,height:18,background:P.border2}}/>
             <div style={{display:"flex",alignItems:"center",gap:10}}>
               <img src="/pretzl-wordmark.png" alt="Pretzl" style={{height:16,display:"inline-block",opacity:0.9}} />
               <span style={{fontFamily:"'DM Serif Display',serif",fontSize:16,color:"#AAAACC",fontStyle:"italic"}}>Interview Project</span>
@@ -249,12 +293,31 @@ export default function Witness() {
           <div style={{display:"flex",flexDirection:"column",borderRight:`1px solid ${P.border}`}}>
 
             {/* Stage bar */}
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 24px 12px",borderBottom:`1px solid ${P.border}`,flexShrink:0}}>
-              <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:P.blue,letterSpacing:"0.14em",textTransform:"uppercase"}}>{STAGES[stage]}</div>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 24px",borderBottom:`1px solid ${P.border}`,flexShrink:0}}>
+              <div style={{display:"flex",alignItems:"center",gap:12}}>
+                <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:P.blue,letterSpacing:"0.14em",textTransform:"uppercase"}}>{STAGES[stage]}</div>
+                <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:"#5A5A78"}}>·</div>
+                <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:"#7A7A99"}}>~{TIME_REMAINING[stage]} min remaining</div>
+              </div>
               <div style={{display:"flex",gap:6}}>
-                {STAGES.map((_,i)=><div key={i} style={{width:6,height:6,borderRadius:"50%",background:i<stage?P.muted:i===stage?P.blue:P.border2,transition:"background 0.3s"}}/>)}
+                {STAGES.map((_,i)=>(
+                  <div key={i} style={{width:28,height:4,borderRadius:2,background:i<stage?"#3A3A5A":i===stage?P.blue:P.border2,transition:"background 0.4s"}}/>
+                ))}
               </div>
             </div>
+
+            {/* Stage intro card */}
+            {stageCard !== null && (
+              <div onClick={()=>setStageCard(null)} style={{margin:"16px 24px 0",padding:"14px 18px",background:`${P.blue}10`,border:`1px solid ${P.blue}30`,cursor:"pointer",animation:"fadeDown 0.3s ease forwards",flexShrink:0}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12}}>
+                  <div>
+                    <div style={{fontFamily:"'DM Mono',monospace",fontSize:10,letterSpacing:"0.16em",textTransform:"uppercase",color:P.blue,marginBottom:5}}>{STAGES[stageCard]}</div>
+                    <div style={{fontSize:14,color:"#C0C0D8",lineHeight:1.6,fontWeight:300}}>{STAGE_DESC[stageCard]}</div>
+                  </div>
+                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:"#4A4A66",flexShrink:0,marginTop:2}}>tap to dismiss</div>
+                </div>
+              </div>
+            )}
 
             {/* Messages */}
             <div style={{flex:1,overflowY:"auto",padding:"20px 24px",display:"flex",flexDirection:"column"}}>
@@ -293,7 +356,18 @@ export default function Witness() {
             </div>
 
             {/* Input */}
-            <div style={{padding:"16px 24px",borderTop:`1px solid ${P.border}`,flexShrink:0,background:P.surface}}>
+            <div style={{padding:"12px 24px 16px",borderTop:`1px solid ${P.border}`,flexShrink:0,background:P.surface}}>
+              {/* Final question chip */}
+              {stage >= 4 && messages.length > 4 && (
+                <div style={{marginBottom:10}}>
+                  <button onClick={()=>send(FINAL_Q)} disabled={loading}
+                    style={{fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:300,color:"#9A9ABB",background:"transparent",border:`1px solid ${P.border2}`,padding:"7px 14px",cursor:"pointer",fontStyle:"italic",transition:"border-color 0.2s, color 0.2s"}}
+                    onMouseEnter={e=>{e.target.style.borderColor=P.blue;e.target.style.color=P.white;}}
+                    onMouseLeave={e=>{e.target.style.borderColor=P.border2;e.target.style.color="#9A9ABB";}}>
+                    "{FINAL_Q}"
+                  </button>
+                </div>
+              )}
               <div style={{display:"flex",gap:10,alignItems:"flex-end"}}>
                 <textarea
                   style={{flex:1,background:P.bg,border:`1px solid ${P.border2}`,color:P.white,fontFamily:"'DM Sans',sans-serif",fontSize:15,fontWeight:300,padding:"10px 14px",resize:"none",outline:"none",lineHeight:1.7,minHeight:44,maxHeight:120}}
@@ -307,7 +381,7 @@ export default function Witness() {
                     {listening && <div style={{position:"absolute",inset:-4,borderRadius:"50%",border:`2px solid ${P.red}`,animation:"ripple 1.2s ease-out infinite",pointerEvents:"none"}}/>}
                   </button>
                 )}
-                <button onClick={send} disabled={loading||(!input.trim()&&!interim)}
+                <button onClick={()=>send()} disabled={loading||(!input.trim()&&!interim)}
                   style={{width:42,height:42,background:(input.trim()||interim)&&!loading?P.blue:P.border2,border:"none",color:(input.trim()||interim)&&!loading?"#fff":P.muted,cursor:(input.trim()||interim)&&!loading?"pointer":"not-allowed",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontSize:16}}>
                   ↑
                 </button>
