@@ -331,7 +331,7 @@ export default function Witness() {
           <div style={{fontFamily:"'DM Serif Display',serif",fontSize:46,color:P.white,lineHeight:1.05,marginBottom:8,display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
             The <img src="/pretzl-wordmark.png" alt="Pretzl" style={{height:42,display:"inline-block",verticalAlign:"middle",opacity:0.9}} /> Interview Project
           </div>
-          <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#8A8AAA",letterSpacing:"0.16em",textTransform:"uppercase",marginBottom:8}}>
+          <div style={{fontFamily:"'DM Serif Display',serif",fontSize:22,color:P.white,marginBottom:8,textAlign:"center"}}>
             Market Narrative Builder
           </div>
           <div style={{fontSize:14,color:"#7A7A99",fontWeight:300,lineHeight:1.7,marginBottom:20}}>
