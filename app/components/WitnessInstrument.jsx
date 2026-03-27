@@ -481,9 +481,9 @@ export default function Witness() {
                     </button>
                   )}
                   <button onClick={()=>send("Let's move on.")} disabled={loading}
-                    style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.1em",textTransform:"uppercase",color:"#5A5A78",background:"transparent",border:`1px solid ${P.border}`,padding:"7px 12px",cursor:"pointer",transition:"border-color 0.2s, color 0.2s"}}
-                    onMouseEnter={e=>{e.target.style.borderColor=P.border2;e.target.style.color="#9A9ABB";}}
-                    onMouseLeave={e=>{e.target.style.borderColor=P.border;e.target.style.color="#5A5A78";}}>
+                    style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.1em",textTransform:"uppercase",color:"#8888AA",background:"transparent",border:`1px solid ${P.border2}`,padding:"7px 12px",cursor:"pointer",transition:"border-color 0.2s, color 0.2s"}}
+                    onMouseEnter={e=>{e.target.style.borderColor="#6666AA";e.target.style.color="#CCCCDD";}}
+                    onMouseLeave={e=>{e.target.style.borderColor=P.border2;e.target.style.color="#8888AA";}}>
                     Skip →
                   </button>
                 </div>
