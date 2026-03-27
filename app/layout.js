@@ -1,5 +1,6 @@
 export const metadata = {
   title: "The Pretzl Interview Project",
+  icons: { icon: "/favicon.png" },
 };
 
 export default function RootLayout({ children }) {
