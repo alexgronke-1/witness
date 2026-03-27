@@ -118,14 +118,21 @@ const STUDIO_OUTPUTS = [
   },
 ];
 
-async function callClaude(messages, system, maxTokens = 500) {
+async function callClaude(messages, system, maxTokens = 500, attempt = 0) {
   const res = await fetch("/api/interview", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:maxTokens, system, messages }),
   });
   const data = await res.json();
-  if (data.error) throw new Error(data.error.message);
+  if (data.error) {
+    const isOverloaded = res.status === 529 || data.error.message?.toLowerCase().includes("overload");
+    if (isOverloaded && attempt < 3) {
+      await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
+      return callClaude(messages, system, maxTokens, attempt + 1);
+    }
+    throw new Error(data.error.message);
+  }
   return data.content?.[0]?.text || "";
 }
 
