@@ -66,6 +66,33 @@ Keep responses concise. One question. Don't explain why. Just ask.`;
 const EXTRACTOR = `Analyze this interview transcript. Return ONLY valid JSON, nothing else:
 {"subject":"name and role or null","the_before":"specific description of what was broken or null","stakes":"what they personally had at risk or null","scenes":[{"label":"short title","detail":"specific detail from their words"}],"witness_moments":[{"quote":"their actual words","why":"why witness not spokesperson"}],"personal_thread":"any personal connection or null","best_question_remaining":"single best unasked question"}`;
 
+const STUDIO_OUTPUTS = [
+  {
+    key: "battleCard",
+    label: "Battle Card",
+    description: "Problem / Solution / Outcome / Quote / Objection Handler",
+    system: `You are a strategic content writer. Based on this interview transcript, create a concise battle card with: 1) The Problem (2-3 sentences of what was broken), 2) The Solution (what they did), 3) The Outcome (specific results with numbers if available), 4) Key Quote (best pull quote from the transcript), 5) Objection Handler (one likely objection and how this story addresses it). Be specific. Use their actual words where possible.`,
+  },
+  {
+    key: "brief",
+    label: "Brief",
+    description: "200-250 word narrative treatment in third person",
+    system: `You are a content strategist. Write a 200-250 word narrative brief based on this interview. It should read like a story treatment — the before, the decision, the implementation, the outcome, and what it means. Write in third person. Be specific and concrete. No marketing language.`,
+  },
+  {
+    key: "storyAngles",
+    label: "Story Angles",
+    description: "4 distinct editorial angles with headlines and hooks",
+    system: `You are an editorial strategist. Based on this interview transcript, suggest 4 distinct story angles. For each angle provide: a headline (under 10 words), a one-sentence hook, and the key interview moment that supports it. Format clearly with angle numbers.`,
+  },
+  {
+    key: "heygenScript",
+    label: "HeyGen Script",
+    description: "90-second video script for AI avatar presenter",
+    system: `You are a video scriptwriter. Write a 90-second video script based on this interview for an AI avatar presenter. The script should: open with a hook (the most compelling moment), tell the story arc (before/decision/outcome), end with a specific memorable line. Include [PAUSE] directions. Target 220 words. Write in a warm, direct conversational tone — not corporate.`,
+  },
+];
+
 async function callClaude(messages, system, maxTokens = 500) {
   const res = await fetch("/api/interview", {
     method: "POST",
@@ -82,6 +109,10 @@ function buildMsgs(msgs, name, company, product) {
   const out = [{ role:"user", content:ctx }];
   for (const m of msgs) out.push({ role: m.role === "interviewer" ? "assistant" : "user", content: m.content });
   return out;
+}
+
+function buildTranscript(msgs) {
+  return msgs.map(m => `${m.role === "interviewer" ? "INTERVIEWER" : "SUBJECT"}: ${m.content}`).join("\n\n");
 }
 
 const gss = `
@@ -110,6 +141,11 @@ export default function Witness() {
   const [speechOk, setSpeech]   = useState(false);
   const [err, setErr]           = useState(null);
   const [stageCard, setStageCard] = useState(null);
+  const [studioTab, setStudioTab] = useState("client");
+  const [studioOutputs, setStudioOutputs] = useState({});
+  const [studioLoading, setStudioLoading] = useState({});
+  const [studioCopied, setStudioCopied] = useState({});
+  const [sharecopied, setShareCopied] = useState(false);
   const bottomRef  = useRef(null);
   const recRef     = useRef(null);
   const prevStage  = useRef(-1);
@@ -154,6 +190,10 @@ export default function Witness() {
     setMap(null);
     setErr(null);
     setStageCard(null);
+    setStudioTab("client");
+    setStudioOutputs({});
+    setStudioLoading({});
+    setStudioCopied({});
     prevStage.current = -1;
   }
 
@@ -195,6 +235,44 @@ export default function Witness() {
       setMap(JSON.parse(raw.replace(/```json|```/g,"").trim()));
     } catch(e) { console.error(e); }
     setExt(false);
+  }
+
+  async function generateStudioOutput(outputKey, system) {
+    if (messages.length < 2) return;
+    setStudioLoading(prev => ({ ...prev, [outputKey]: true }));
+    try {
+      const transcript = buildTranscript(messages);
+      const text = await callClaude(
+        [{ role:"user", content:`Here is the interview transcript:\n\n${transcript}` }],
+        system,
+        1200
+      );
+      setStudioOutputs(prev => ({ ...prev, [outputKey]: text }));
+    } catch(e) {
+      setStudioOutputs(prev => ({ ...prev, [outputKey]: `Error: ${e.message}` }));
+    }
+    setStudioLoading(prev => ({ ...prev, [outputKey]: false }));
+  }
+
+  async function copyStudioOutput(outputKey) {
+    const text = studioOutputs[outputKey];
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setStudioCopied(prev => ({ ...prev, [outputKey]: true }));
+      setTimeout(() => setStudioCopied(prev => ({ ...prev, [outputKey]: false })), 2000);
+    } catch(e) { console.error(e); }
+  }
+
+  async function shareWithClient() {
+    if (!storyMap) return;
+    try {
+      const encoded = encodeURIComponent(btoa(JSON.stringify(storyMap)));
+      const url = `${window.location.origin}/review?d=${encoded}`;
+      await navigator.clipboard.writeText(url);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    } catch(e) { console.error(e); }
   }
 
   function toggleListen() {
@@ -390,69 +468,155 @@ export default function Witness() {
             </div>
           </div>
 
-          {/* Story Map */}
+          {/* Right Panel */}
           <div style={{display:"flex",flexDirection:"column",background:P.surface}}>
-            <div style={{padding:"14px 18px 12px",borderBottom:`1px solid ${P.border}`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <div style={{fontFamily:"'DM Serif Display',serif",fontStyle:"italic",fontSize:16,color:"#AAAACC"}}>Story Map</div>
-              {storyMap && <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:P.blue,letterSpacing:"0.1em",textTransform:"uppercase"}}>Live</div>}
-            </div>
 
-            <div style={{flex:1,overflowY:"auto",padding:"18px",display:"flex",flexDirection:"column",gap:18}}>
-              {!storyMap ? (
-                <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",gap:14,opacity:0.25,textAlign:"center"}}>
-                  <div style={{width:28,height:28,borderRadius:"50%",border:`1px solid ${P.muted}`,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                    <div style={{width:6,height:6,borderRadius:"50%",background:P.muted}}/>
-                  </div>
-                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#8888AA",letterSpacing:"0.1em",textTransform:"uppercase",lineHeight:1.8}}>Map builds<br/>as scenes<br/>surface</div>
-                </div>
-              ) : (
-                <>
-                  {storyMap.subject && <MapSection label="Subject" color={P.muted} text={storyMap.subject}/>}
-                  {storyMap.the_before && <MapSection label="The Before" color={P.red} text={storyMap.the_before}/>}
-                  {storyMap.stakes && <MapSection label="Stakes" color={P.yellow} text={storyMap.stakes}/>}
-                  {storyMap.scenes?.length > 0 && (
-                    <div style={{borderLeft:`2px solid ${P.blue}`,paddingLeft:13}}>
-                      <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",color:P.blue,marginBottom:10}}>Scenes</div>
-                      {storyMap.scenes.map((sc,i)=>(
-                        <div key={i} style={{marginBottom:14}}>
-                          <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:P.blue,marginBottom:4}}>{sc.label}</div>
-                          <div style={{fontSize:14,lineHeight:1.8,color:"#C0C0D8",fontWeight:300}}>{sc.detail}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {storyMap.witness_moments?.length > 0 && (
-                    <div style={{borderLeft:`2px solid ${P.blue}`,paddingLeft:13}}>
-                      <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",color:P.blue,marginBottom:10}}>Witness Moments</div>
-                      {storyMap.witness_moments.map((w,i)=>(
-                        <div key={i} style={{marginBottom:18}}>
-                          <div style={{fontFamily:"'DM Serif Display',serif",fontStyle:"italic",fontSize:15,lineHeight:1.7,color:P.white,marginBottom:6}}>"{w.quote}"</div>
-                          <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:"#9A9ABB",lineHeight:1.65}}>{w.why}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {storyMap.personal_thread && <MapSection label="Personal Thread" color="#8B6E9E" text={storyMap.personal_thread}/>}
-                  {storyMap.best_question_remaining && (
-                    <div style={{background:`${P.blue}10`,border:`1px solid ${P.blue}22`,padding:14}}>
-                      <span style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",color:P.blue,display:"block",marginBottom:8}}>Next Best Question</span>
-                      <div style={{fontFamily:"'DM Serif Display',serif",fontStyle:"italic",fontSize:15,color:"#90C8EE",lineHeight:1.7}}>{storyMap.best_question_remaining}</div>
-                    </div>
-                  )}
-                </>
+            {/* Tab switcher */}
+            <div style={{padding:"10px 18px",borderBottom:`1px solid ${P.border}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
+              <div style={{display:"flex",gap:4,background:P.surface2,borderRadius:20,padding:3}}>
+                {[["client","Client View"],["studio","Studio"]].map(([tab,label]) => (
+                  <button key={tab} onClick={()=>setStudioTab(tab)}
+                    style={{
+                      fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.1em",textTransform:"uppercase",
+                      padding:"5px 14px",borderRadius:16,border:"none",cursor:"pointer",
+                      background: studioTab===tab ? P.blue : "transparent",
+                      color: studioTab===tab ? "#fff" : P.dim,
+                      transition:"background 0.2s, color 0.2s",
+                    }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {studioTab === "client" && storyMap && (
+                <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:P.blue,letterSpacing:"0.1em",textTransform:"uppercase"}}>Live</div>
               )}
             </div>
 
-            <div style={{padding:"14px 18px",borderTop:`1px solid ${P.border}`,flexShrink:0}}>
-              <button onClick={()=>doExtract(messages)} disabled={messages.length<4||extracting}
-                style={{width:"100%",padding:"10px",background:"transparent",border:`1px solid ${P.border2}`,color:"#8A8AAA",fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.1em",textTransform:"uppercase",cursor:"pointer"}}>
-                {extracting?"Analyzing…":"Update Story Map"}
-              </button>
-            </div>
+            {/* Client View tab */}
+            {studioTab === "client" && (
+              <>
+                <div style={{flex:1,overflowY:"auto",padding:"18px",display:"flex",flexDirection:"column",gap:18}}>
+                  {!storyMap ? (
+                    <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",gap:14,opacity:0.25,textAlign:"center"}}>
+                      <div style={{width:28,height:28,borderRadius:"50%",border:`1px solid ${P.muted}`,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                        <div style={{width:6,height:6,borderRadius:"50%",background:P.muted}}/>
+                      </div>
+                      <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#8888AA",letterSpacing:"0.1em",textTransform:"uppercase",lineHeight:1.8}}>Map builds<br/>as scenes<br/>surface</div>
+                    </div>
+                  ) : (
+                    <>
+                      {storyMap.subject && <MapSection label="Subject" color={P.muted} text={storyMap.subject}/>}
+                      {storyMap.the_before && <MapSection label="The Before" color={P.red} text={storyMap.the_before}/>}
+                      {storyMap.stakes && <MapSection label="Stakes" color={P.yellow} text={storyMap.stakes}/>}
+                      {storyMap.scenes?.length > 0 && (
+                        <div style={{borderLeft:`2px solid ${P.blue}`,paddingLeft:13}}>
+                          <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",color:P.blue,marginBottom:10}}>Scenes</div>
+                          {storyMap.scenes.map((sc,i)=>(
+                            <div key={i} style={{marginBottom:14}}>
+                              <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:P.blue,marginBottom:4}}>{sc.label}</div>
+                              <div style={{fontSize:14,lineHeight:1.8,color:"#C0C0D8",fontWeight:300}}>{sc.detail}</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {storyMap.witness_moments?.length > 0 && (
+                        <div style={{borderLeft:`2px solid ${P.blue}`,paddingLeft:13}}>
+                          <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",color:P.blue,marginBottom:10}}>Witness Moments</div>
+                          {storyMap.witness_moments.map((w,i)=>(
+                            <div key={i} style={{marginBottom:18}}>
+                              <div style={{fontFamily:"'DM Serif Display',serif",fontStyle:"italic",fontSize:15,lineHeight:1.7,color:P.white,marginBottom:6}}>"{w.quote}"</div>
+                              <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:"#9A9ABB",lineHeight:1.65}}>{w.why}</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {storyMap.personal_thread && <MapSection label="Personal Thread" color="#8B6E9E" text={storyMap.personal_thread}/>}
+                      {storyMap.best_question_remaining && (
+                        <div style={{background:`${P.blue}10`,border:`1px solid ${P.blue}22`,padding:14}}>
+                          <span style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",color:P.blue,display:"block",marginBottom:8}}>Next Best Question</span>
+                          <div style={{fontFamily:"'DM Serif Display',serif",fontStyle:"italic",fontSize:15,color:"#90C8EE",lineHeight:1.7}}>{storyMap.best_question_remaining}</div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                <div style={{padding:"14px 18px",borderTop:`1px solid ${P.border}`,flexShrink:0,display:"flex",flexDirection:"column",gap:8}}>
+                  <button onClick={()=>doExtract(messages)} disabled={messages.length<4||extracting}
+                    style={{width:"100%",padding:"10px",background:"transparent",border:`1px solid ${P.border2}`,color:"#8A8AAA",fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.1em",textTransform:"uppercase",cursor:"pointer"}}>
+                    {extracting?"Analyzing…":"Update Story Map"}
+                  </button>
+                  {storyMap && (
+                    <button onClick={shareWithClient}
+                      style={{width:"100%",padding:"10px",background:sharecopied?`${P.blue}22`:P.blue,border:`1px solid ${sharecopied?P.blue:P.blueD}`,color:"#fff",fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.1em",textTransform:"uppercase",cursor:"pointer",transition:"background 0.2s"}}>
+                      {sharecopied ? "Copied!" : "Share with Client"}
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* Studio tab */}
+            {studioTab === "studio" && (
+              <div style={{flex:1,overflowY:"auto",padding:"18px",display:"flex",flexDirection:"column",gap:16}}>
+                {messages.length < 2 && (
+                  <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",gap:14,opacity:0.3,textAlign:"center"}}>
+                    <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#8888AA",letterSpacing:"0.1em",textTransform:"uppercase",lineHeight:1.8}}>Start the interview<br/>to generate outputs</div>
+                  </div>
+                )}
+                {messages.length >= 2 && STUDIO_OUTPUTS.map(({ key, label, description, system }) => (
+                  <StudioCard
+                    key={key}
+                    label={label}
+                    description={description}
+                    content={studioOutputs[key]}
+                    isLoading={studioLoading[key]}
+                    isCopied={studioCopied[key]}
+                    onGenerate={() => generateStudioOutput(key, system)}
+                    onCopy={() => copyStudioOutput(key)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
     </>
+  );
+}
+
+function StudioCard({ label, description, content, isLoading, isCopied, onGenerate, onCopy }) {
+  return (
+    <div style={{border:`1px solid ${P.border2}`,background:P.surface2,display:"flex",flexDirection:"column"}}>
+      <div style={{padding:"12px 14px",borderBottom:`1px solid ${P.border}`,display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8}}>
+        <div>
+          <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",color:P.white,marginBottom:3}}>{label}</div>
+          <div style={{fontSize:12,color:P.dim,fontWeight:300,lineHeight:1.5}}>{description}</div>
+        </div>
+        <div style={{display:"flex",gap:6,flexShrink:0}}>
+          {content && (
+            <button onClick={onCopy}
+              style={{fontFamily:"'DM Mono',monospace",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase",padding:"5px 10px",border:`1px solid ${P.border2}`,background:"transparent",color:isCopied?P.blue:P.dim,cursor:"pointer",transition:"color 0.2s"}}>
+              {isCopied ? "Copied!" : "Copy"}
+            </button>
+          )}
+          <button onClick={onGenerate} disabled={isLoading}
+            style={{fontFamily:"'DM Mono',monospace",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase",padding:"5px 10px",border:`1px solid ${isLoading?P.border2:P.blue}`,background:isLoading?"transparent":`${P.blue}18`,color:isLoading?P.dim:P.blue,cursor:isLoading?"not-allowed":"pointer",transition:"all 0.2s"}}>
+            {isLoading ? "Generating…" : content ? "Regenerate" : "Generate"}
+          </button>
+        </div>
+      </div>
+      {isLoading && (
+        <div style={{padding:"14px",display:"flex",gap:5,alignItems:"center"}}>
+          {[0,1,2].map(i=><div key={i} style={{width:4,height:4,borderRadius:"50%",background:P.blue,animation:`pulse 1.2s ease-in-out ${i*0.2}s infinite`}}/>)}
+        </div>
+      )}
+      {content && !isLoading && (
+        <div style={{padding:"14px",overflowY:"auto",maxHeight:240}}>
+          <div style={{fontSize:13,lineHeight:1.85,color:"#C0C0D8",fontWeight:300,whiteSpace:"pre-wrap"}}>{content}</div>
+        </div>
+      )}
+    </div>
   );
 }
 
